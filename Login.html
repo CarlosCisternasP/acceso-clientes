@@ -1,0 +1,48 @@
+<form id="formulario">
+  <label>RUT:<br><input type="text" id="rut" required></label><br><br>
+  <label>Nombre:<br><input type="text" id="nombre" required></label><br><br>
+  <label>Clave:<br><input type="password" id="clave" required></label><br><br>
+  <button type="submit">Enviar</button>
+</form>
+
+<p id="resultado"></p>
+
+<script>
+  const webhookUrl = "https://prod-XX.westeurope.logic.azure.com:443/workflows/XXXX"; // <-- reemplaza con tu URL real
+
+  async function hashClave(texto) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(texto);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  document.getElementById("formulario").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const rut = document.getElementById("rut").value;
+    const nombre = document.getElementById("nombre").value;
+    const clave = document.getElementById("clave").value;
+    const claveHash = await hashClave(clave);
+
+    const data = { rut, nombre, clave: claveHash };
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        document.getElementById("resultado").innerText = "Datos enviados correctamente.";
+        document.getElementById("formulario").reset();
+      } else {
+        document.getElementById("resultado").innerText = "Error al enviar datos.";
+      }
+    } catch (error) {
+      console.error(error);
+      document.getElementById("resultado").innerText = "Error de conexión.";
+    }
+  });
+</script>
