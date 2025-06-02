@@ -2,37 +2,81 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso de Clientes</title>
+  <title>Acceso Clientes - Hidronor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; text-align: center; margin-top: 50px; }
-    input { padding: 10px; font-size: 16px; }
-    button { padding: 10px 20px; font-size: 16px; }
-    .error { color: red; margin-top: 10px; }
+    body { font-family: Arial, sans-serif; background: #f4f6fa; margin: 0; }
+    .login-container {
+      background: #fff;
+      max-width: 350px;
+      margin: 80px auto;
+      padding: 32px 24px 24px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 32px rgba(24,70,145,0.08);
+    }
+    h2 { color: #184691; text-align: center; }
+    label { display: block; margin-top: 18px; font-weight: bold; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #c6d1e6; border-radius: 4px;
+    }
+    button {
+      width: 100%; margin-top: 24px; background: #184691; color: #fff;
+      border: none; padding: 10px; border-radius: 4px; font-size: 1.1em; cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #2c65c8; }
+    .error { color: #e52b50; margin-top: 14px; text-align: center; }
+    .logo { display: block; margin: 0 auto 24px auto; width: 80px; }
   </style>
 </head>
 <body>
-  <h2>CERTIFICADOS HIDRONOR</h2>
-  <form id="formRUT">
-    <input type="text" id="rut" placeholder="Ingrese su RUT" required />
-    <button type="submit">VER MIS DOCUMENTOS</button>
-    <div class="error" id="error"></div>
-  </form>
+  <div class="login-container">
+    <img src="https://hidronor.cl/wp-content/uploads/2023/10/cropped-cropped-logo_hidronor2023-1.png" alt="Hidronor Logo" class="logo" />
+    <h2>Acceso Clientes</h2>
+    <form id="loginForm" autocomplete="off">
+      <label for="rut">RUT (sin puntos ni guión):</label>
+      <input type="text" id="rut" name="rut" maxlength="12" required autocomplete="username">
+
+      <label for="clave">Clave:</label>
+      <input type="password" id="clave" name="clave" required autocomplete="current-password">
+
+      <button type="submit">Ingresar</button>
+      <div class="error" id="errorMsg"></div>
+    </form>
+  </div>
 
   <script>
-    const enlacesClientes = {
-      "11.111.111-1": "https://hidronor365.sharepoint.com/comercial/equipoventa/Certificados%20Disposicin%202021/Forms/AllItems.aspx",
-      "22.222.222-2": "https://hidronor365.sharepoint.com/comercial/equipoventa/Certificados%20Disposicin%202022/Forms/AllItems.aspx",
-      "33333333-3": "https://tusitio.sharepoint.com/ruta-cliente3"
-    };
+    // Cambia esta variable por la URL de tu backend/API que autentique con SharePoint
+    const API_URL = 'https://hidronor365.sharepoint.com/sites/intranet_v1.0/Lists/LoginClientes/AllItems.aspx';
 
-    document.getElementById("formRUT").addEventListener("submit", function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const rut = document.getElementById("rut").value.trim();
-      const enlace = enlacesClientes[rut];
-      if (enlace) {
-        window.location.href = enlace;
-      } else {
-        document.getElementById("error").innerText = "RUT no encontrado. Verifique e intente nuevamente.";
+      document.getElementById('errorMsg').textContent = '';
+
+      const rut = document.getElementById('rut').value.trim();
+      const clave = document.getElementById('clave').value.trim();
+
+      if (!rut || !clave) {
+        document.getElementById('errorMsg').textContent = 'Debe ingresar su RUT y clave.';
+        return;
+      }
+
+      // Llama a tu backend (ver ejemplo backend en mensaje anterior)
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rut, clave })
+        });
+
+        if (res.ok) {
+          const { url } = await res.json();
+          window.location.href = url;
+        } else {
+          document.getElementById('errorMsg').textContent = 'RUT o clave incorrectos.';
+        }
+      } catch (err) {
+        document.getElementById('errorMsg').textContent = 'Error de conexión. Intente nuevamente.';
       }
     });
   </script>
