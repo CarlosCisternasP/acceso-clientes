@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Acceso de Clientes</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input { padding: 10px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; }
+    .error { color: red; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Acceso a Documentos</h2>
+  <form id="formRUT">
+    <input type="text" id="rut" placeholder="Ingrese su RUT" required />
+    <button type="submit">Ver Mis Archivos</button>
+    <div class="error" id="error"></div>
+  </form>
+
+  <script>
+    const enlacesClientes = {
+      "11111111-1": "https://tusitio.sharepoint.com/ruta-cliente1",
+      "22222222-2": "https://tusitio.sharepoint.com/ruta-cliente2",
+      "33333333-3": "https://tusitio.sharepoint.com/ruta-cliente3"
+    };
+
+    document.getElementById("formRUT").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const rut = document.getElementById("rut").value.trim();
+      const enlace = enlacesClientes[rut];
+      if (enlace) {
+        window.location.href = enlace;
+      } else {
+        document.getElementById("error").innerText = "RUT no encontrado. Verifique e intente nuevamente.";
+      }
+    });
+  </script>
+</body>
+</html>
